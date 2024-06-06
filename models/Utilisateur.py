@@ -1,5 +1,6 @@
-from datetime import datetime
+# models/utilisateur.py
 from app import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class Utilisateur(db.Model):
@@ -9,7 +10,18 @@ class Utilisateur(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     adresse = db.Column(db.String(200), nullable=False)
     telephone = db.Column(db.String(20), nullable=False)
-    motDePasse = db.Column(db.String(200), nullable=False)
+    motDePasse_hash = db.Column(db.String(200), nullable=False)
+
+    @property
+    def motDePasse(self):
+        raise AttributeError('motDePasse is not a readable attribute')
+
+    @motDePasse.setter
+    def motDePasse(self, password):
+        self.motDePasse_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.motDePasse_hash, password)
 
     def to_dict(self):
         return {
@@ -19,5 +31,5 @@ class Utilisateur(db.Model):
             "email": self.email,
             "adresse": self.adresse,
             "telephone": self.telephone,
-            "motDePasse": self.motDePasse
+            # Ne pas inclure le mot de passe hashé dans la représentation
         }
