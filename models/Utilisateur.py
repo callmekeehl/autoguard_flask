@@ -10,7 +10,7 @@ class Utilisateur(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     adresse = db.Column(db.String(200), nullable=False)
     telephone = db.Column(db.String(20), nullable=False)
-    motDePasse_hash = db.Column(db.String(200), nullable=False)
+    _motDePasse = db.Column('motDePasse', db.String(200), nullable=False)
 
     @property
     def motDePasse(self):
@@ -18,10 +18,10 @@ class Utilisateur(db.Model):
 
     @motDePasse.setter
     def motDePasse(self, password):
-        self.motDePasse_hash = generate_password_hash(password)
+        self.motDePasse = generate_password_hash(password)
 
     def verify_password(self, password):
-        return check_password_hash(self.motDePasse_hash, password)
+        return check_password_hash(self.motDePasse, password)
 
     def to_dict(self):
         return {
@@ -31,5 +31,4 @@ class Utilisateur(db.Model):
             "email": self.email,
             "adresse": self.adresse,
             "telephone": self.telephone,
-            # Ne pas inclure le mot de passe hashé dans la représentation
         }
