@@ -3,11 +3,11 @@ from models import Declaration, Notification, Rdv, Police, Garage
 from models.Utilisateur import Utilisateur
 from app import db
 
-main = Blueprint('main', __name__)
+utilisateur_bp = Blueprint('utilisateur_bp', __name__)
 
 
 # Utilisateur routes
-@main.route('/utilisateurs', methods=['GET', 'POST'])
+@utilisateur_bp.route('/utilisateurs', methods=['GET', 'POST'])
 def handle_utilisateurs():
     if request.method == 'POST':
         data = request.get_json()
@@ -28,7 +28,7 @@ def handle_utilisateurs():
         return jsonify([u.to_dict() for u in utilisateurs])
 
 
-@main.route('/utilisateurs/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+@utilisateur_bp.route('/utilisateurs/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_utilisateur(id):
     utilisateur = Utilisateur.query.get_or_404(id)
 

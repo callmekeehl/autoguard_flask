@@ -3,12 +3,12 @@ from models import Declaration, Notification, Rdv, Police, Garage
 from models.Utilisateur import Utilisateur
 from app import db
 
-main = Blueprint('main', __name__)
+declaration_bp = Blueprint('declaration_bp', __name__)
 
 # routes.py (ajoutez ce code à la suite de celui existant)
 from models.Declaration import Declaration
 
-@main.route('/declarations', methods=['GET', 'POST'])
+@declaration_bp.route('/declarations', methods=['GET', 'POST'])
 def handle_declarations():
     if request.method == 'POST':
         data = request.get_json()
@@ -35,7 +35,7 @@ def handle_declarations():
         declarations = Declaration.query.all()
         return jsonify([d.to_dict() for d in declarations])
 
-@main.route('/declarations/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+@declaration_bp.route('/declarations/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_declaration(id):
     declaration = Declaration.query.get_or_404(id)
 

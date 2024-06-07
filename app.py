@@ -9,17 +9,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Importez vos modèles ici après la configuration de la base de données
-from models.Utilisateur import Utilisateur
-from models.Notification import Notification
-from models.Declaration import Declaration
-from models.Police import Police
-from models.Garage import Garage
-from models.Rdv import Rdv
+# Importation des modèles
+from models import Utilisateur, Notification, Declaration, Police, Garage, Admin
 
-# Importez et enregistrez les blueprints des routes
-from routes import main as main_blueprint
-app.register_blueprint(main_blueprint)
+# Enregistrement des blueprints
+from routes import register_blueprints
+register_blueprints(app)
 
 if __name__ == '__main__':
     app.run(debug=True)

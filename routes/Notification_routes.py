@@ -3,11 +3,11 @@ from models import Declaration, Notification, Rdv, Police, Garage
 from models.Utilisateur import Utilisateur
 from app import db
 
-main = Blueprint('main', __name__)
+notification_bp = Blueprint('notification_bp', __name__)
 
 from models.Notification import Notification
 
-@main.route('/notifications', methods=['GET', 'POST'])
+@notification_bp.route('/notifications', methods=['GET', 'POST'])
 def handle_notifications():
     if request.method == 'POST':
         data = request.get_json()
@@ -25,7 +25,7 @@ def handle_notifications():
         notifications = Notification.query.all()
         return jsonify([n.to_dict() for n in notifications])
 
-@main.route('/notifications/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+@notification_bp.route('/notifications/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_notification(id):
     notification = Notification.query.get_or_404(id)
 

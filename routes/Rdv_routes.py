@@ -3,12 +3,12 @@ from models import Declaration, Notification, Rdv, Police, Garage
 from models.Utilisateur import Utilisateur
 from app import db
 
-main = Blueprint('main', __name__)
+rdv_bp = Blueprint('rdv_bp', __name__)
 
 # routes.py (ajoutez ce code à la suite de celui existant)
 from models.Rdv import Rdv
 
-@main.route('/rdvs', methods=['GET', 'POST'])
+@rdv_bp.route('/rdvs', methods=['GET', 'POST'])
 def handle_rdvs():
     if request.method == 'POST':
         data = request.get_json()
@@ -26,7 +26,7 @@ def handle_rdvs():
         rdvs = Rdv.query.all()
         return jsonify([r.to_dict() for r in rdvs])
 
-@main.route('/rdvs/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+@rdv_bp.route('/rdvs/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_rdv(id):
     rdv = Rdv.query.get_or_404(id)
 
