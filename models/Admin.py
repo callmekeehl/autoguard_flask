@@ -1,21 +1,22 @@
-# models/Admin.py
+# models/admin.py
 from app import db
 from models.Utilisateur import Utilisateur
 
 
-class Admin(db.Model):
-    __tablename__ = 'admin'
-    adminId = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    utilisateurId = db.Column(db.Integer, db.ForeignKey('utilisateur.utilisateurId'), nullable=False)
-    utilisateur = db.relationship('Utilisateur', backref=db.backref('admin', uselist=False))
+class Admin(Utilisateur):
+    __tablename__ = 'admins'
+    __mapper_args__ = {
+        'polymorphic_identity': 'admin',
+        'inherit_condition': (db.ForeignKey('utilisateurs.utilisateurId') == db.column('admins.adminId'))
+    }
+
+    adminId = db.Column(db.Integer, db.ForeignKey('utilisateurs.utilisateurId'), primary_key=True)
+    champSpecifiqueAdmin = db.Column(db.String(100))  # Exemple de champ spécifique
 
     def to_dict(self):
-        return {
+        data = super().to_dict()
+        data.update({
             "adminId": self.adminId,
-            "utilisateurId": self.utilisateurId,
-            "nom": self.utilisateur.nom,
-            "prenom": self.utilisateur.prenom,
-            "email": self.utilisateur.email,
-            "adresse": self.utilisateur.adresse,
-            "telephone": self.utilisateur.telephone
-        }
+            "champSpecifiqueAdmin": self.champSpecifiqueAdmin
+        })
+        return data

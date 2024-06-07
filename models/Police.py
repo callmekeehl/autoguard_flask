@@ -1,25 +1,24 @@
-# models/Police.py
+# models/police.py
 from app import db
 from models.Utilisateur import Utilisateur
 
 
-class Police(db.Model):
-    __tablename__ = 'police'
-    policeId = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    utilisateurId = db.Column(db.Integer, db.ForeignKey('utilisateur.utilisateurId'), nullable=False)
-    utilisateur = db.relationship('Utilisateur', backref=db.backref('police', uselist=False))
+class Police(Utilisateur):
+    __tablename__ = 'polices'
+    __mapper_args__ = {
+        'polymorphic_identity': 'police',
+        'inherit_condition': (db.ForeignKey('utilisateurs.utilisateurId') == db.column('polices.policeId'))
+    }
+
+    policeId = db.Column(db.Integer, db.ForeignKey('utilisateurs.utilisateurId'), primary_key=True)
     nomDepartement = db.Column(db.String(100), nullable=False)
     adresseDepartement = db.Column(db.String(200), nullable=False)
 
     def to_dict(self):
-        return {
+        data = super().to_dict()
+        data.update({
             "policeId": self.policeId,
-            "utilisateurId": self.utilisateurId,
             "nomDepartement": self.nomDepartement,
-            "adresseDepartement": self.adresseDepartement,
-            "nom": self.utilisateur.nom,
-            "prenom": self.utilisateur.prenom,
-            "email": self.utilisateur.email,
-            "adresse": self.utilisateur.adresse,
-            "telephone": self.utilisateur.telephone
-        }
+            "adresseDepartement": self.adresseDepartement
+        })
+        return data
