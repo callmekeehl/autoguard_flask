@@ -6,20 +6,21 @@ from app import db
 
 admin_bp = Blueprint('admin_bp', __name__)
 
-
 @admin_bp.route('/admins', methods=['GET', 'POST'])
 def handle_admins():
     if request.method == 'POST':
         data = request.get_json()
-        # Créez d'abord l'utilisateur parent
-        new_admin = Admin(
+        utilisateur = Utilisateur(
             nom=data['nom'],
             prenom=data['prenom'],
             email=data['email'],
             adresse=data['adresse'],
             telephone=data['telephone']
         )
-        new_admin.motDePasse = data['motDePasse']  # Utilise le setter pour hacher le mot de passe
+        utilisateur.motDePasse = data['motDePasse']
+        db.session.add(utilisateur)
+        db.session.flush()  # Flush pour obtenir l'ID utilisateur
+        new_admin = Admin(utilisateurId=utilisateur.utilisateurId)
         db.session.add(new_admin)
         db.session.commit()
         return jsonify({"message": "Admin créé"}), 201
@@ -27,7 +28,6 @@ def handle_admins():
     if request.method == 'GET':
         admins = Admin.query.all()
         return jsonify([a.to_dict() for a in admins])
-
 
 @admin_bp.route('/admins/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_admin(id):
@@ -38,13 +38,14 @@ def handle_admin(id):
 
     if request.method == 'PUT':
         data = request.get_json()
-        admin.nom = data['nom']
-        admin.prenom = data['prenom']
-        admin.email = data['email']
-        admin.adresse = data['adresse']
-        admin.telephone = data['telephone']
+        utilisateur = admin.utilisateur
+        utilisateur.nom = data['nom']
+        utilisateur.prenom = data['prenom']
+        utilisateur.email = data['email']
+        utilisateur.adresse = data['adresse']
+        utilisateur.telephone = data['telephone']
         if 'motDePasse' in data:
-            admin.motDePasse = data['motDePasse']  # Utilise le setter pour hacher le mot de passe
+            utilisateur.motDePasse = data['motDePasse']
         db.session.commit()
         return jsonify({"message": "Admin mis à jour"})
 
