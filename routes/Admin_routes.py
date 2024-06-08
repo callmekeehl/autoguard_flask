@@ -1,4 +1,3 @@
-# routes/admin_routes.py
 from flask import Blueprint, request, jsonify
 from models.Admin import Admin
 from models.Utilisateur import Utilisateur
@@ -11,35 +10,47 @@ admin_bp = Blueprint('admin_bp', __name__)
 def create_admin():
     data = request.get_json()
 
-    # Crée d'abord l'utilisateur de base
-    new_user = Utilisateur(
-        nom=data['nom'],
-        prenom=data['prenom'],
-        email=data['email'],
-        adresse=data['adresse'],
-        telephone=data['telephone'],
-        type='admin'  # Indique que cet utilisateur est un admin
-    )
-    new_user.motDePasse = data['motDePasse']
-    db.session.add(new_user)
-    db.session.commit()
+    print("Données JSON reçues:", data)
 
-    # Ensuite, crée l'admin spécifique
-    new_admin = Admin(
-        utilisateurId=new_user.utilisateurId,
-        champSpecifiqueAdmin=data.get('champSpecifiqueAdmin', '')  # Exemple de champ spécifique
-    )
-    db.session.add(new_admin)
-    db.session.commit()
+    required_fields = ['nom', 'prenom', 'email', 'adresse', 'telephone', 'motDePasse']
+    missing_fields = [field for field in required_fields if field not in data or not data[field]]
 
-    return jsonify({"message": "Admin créé", "adminId": new_admin.adminId}), 201
+    if missing_fields:
+        return jsonify({"error": f"Les champs suivants sont manquants ou vides: {', '.join(missing_fields)}"}), 400
+
+    if Utilisateur.query.filter_by(email=data['email']).first():
+        return jsonify({"error": "Un utilisateur avec cet email existe déjà."}), 400
+
+    try:
+        new_user = Utilisateur(
+            nom=data['nom'],
+            prenom=data['prenom'],
+            email=data['email'],
+            adresse=data['adresse'],
+            telephone=data['telephone'],
+            type='admin'
+        )
+        new_user.motDePasse = data['motDePasse']
+        db.session.add(new_user)
+        db.session.commit()  # Essayons de commettre ici sans flush
+
+        new_admin = Admin(
+            utilisateurId=new_user.utilisateurId
+        )
+        db.session.add(new_admin)
+        db.session.commit()  # Commettre après avoir ajouté l'admin
+
+        return jsonify({"message": "Admin créé", "adminId": new_admin.adminId}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 
 @admin_bp.route('/admins', methods=['GET'])
 def get_admins():
     admins = Admin.query.all()
     return jsonify([a.to_dict() for a in admins])
-
 
 @admin_bp.route('/admins/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_admin(id):
@@ -51,30 +62,30 @@ def handle_admin(id):
     if request.method == 'PUT':
         data = request.get_json()
 
-        # Mettez à jour les champs de l'utilisateur de base
         utilisateur = Utilisateur.query.get(admin.utilisateurId)
-        utilisateur.nom = data['nom']
-        utilisateur.prenom = data['prenom']
-        utilisateur.email = data['email']
-        utilisateur.adresse = data['adresse']
-        utilisateur.telephone = data['telephone']
+        utilisateur.nom = data.get('nom', utilisateur.nom)
+        utilisateur.prenom = data.get('prenom', utilisateur.prenom)
+        utilisateur.email = data.get('email', utilisateur.email)
+        utilisateur.adresse = data.get('adresse', utilisateur.adresse)
+        utilisateur.telephone = data.get('telephone', utilisateur.telephone)
+
         if 'motDePasse' in data:
-            utilisateur.motDePasse = data['motDePasse']
+            utilisateur.motDePasse = data['motDePasse']  # Utiliser le setter pour mettre à jour le mot de passe hashé
 
-        # Mettez à jour les champs spécifiques à l'admin
-        admin.champSpecifiqueAdmin = data.get('champSpecifiqueAdmin', '')
         db.session.commit()
-
         return jsonify({"message": "Admin mis à jour"})
 
     if request.method == 'DELETE':
-        # Supprimez d'abord l'entrée admin
-        db.session.delete(admin)
-        db.session.commit()
+        try:
+            db.session.delete(admin)
+            db.session.commit()
 
-        # Ensuite, supprimez l'utilisateur de base
-        utilisateur = Utilisateur.query.get(admin.utilisateurId)
-        db.session.delete(utilisateur)
-        db.session.commit()
+            utilisateur = Utilisateur.query.get(admin.utilisateurId)
+            if utilisateur:
+                db.session.delete(utilisateur)
+                db.session.commit()
 
-        return jsonify({"message": "Admin supprimé"})
+            return jsonify({"message": "Admin supprimé"})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
