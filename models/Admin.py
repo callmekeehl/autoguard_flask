@@ -4,14 +4,14 @@ from models.Utilisateur import Utilisateur
 
 
 class Admin(Utilisateur):
-    __tablename__ = 'admins'
+    __tablename__ = 'admin'
+    adminId = db.Column(db.Integer, db.ForeignKey('utilisateur.utilisateurId'), primary_key=True)
+    champSpecifiqueAdmin = db.Column(db.String(100))  # Exemple de champ spécifique
+
     __mapper_args__ = {
         'polymorphic_identity': 'admin',
-        'inherit_condition': (db.ForeignKey('utilisateurs.utilisateurId') == db.column('admins.adminId'))
+        'inherit_condition': (adminId == Utilisateur.utilisateurId)
     }
-
-    adminId = db.Column(db.Integer, db.ForeignKey('utilisateurs.utilisateurId'), primary_key=True)
-    champSpecifiqueAdmin = db.Column(db.String(100))  # Exemple de champ spécifique
 
     def to_dict(self):
         data = super().to_dict()

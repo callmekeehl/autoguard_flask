@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class Utilisateur(db.Model):
-    __tablename__ = 'utilisateurs'
+    __tablename__ = 'utilisateur'
     __mapper_args__ = {
         'polymorphic_identity': 'utilisateur',
         'polymorphic_on': 'type'
@@ -19,7 +19,7 @@ class Utilisateur(db.Model):
     adresse = db.Column(db.String(200), nullable=False)
     telephone = db.Column(db.String(15), nullable=False)
     motDePasse_hash = db.Column(db.String(200), nullable=False)
-    type = db.Column(db.String(50))
+    type = db.Column(db.String(50), default='utilisateur')
 
 
     @property
