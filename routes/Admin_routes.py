@@ -22,29 +22,25 @@ def create_admin():
         return jsonify({"error": "Un utilisateur avec cet email existe déjà."}), 400
 
     try:
-        new_user = Utilisateur(
+        # Créez l'utilisateur et assignez directement le type 'admin'
+        new_user = Admin(
             nom=data['nom'],
             prenom=data['prenom'],
             email=data['email'],
             adresse=data['adresse'],
             telephone=data['telephone'],
-            type='admin'
+            type='admin'  # Utilisez le polymorphic_identity 'admin'
         )
         new_user.motDePasse = data['motDePasse']
         db.session.add(new_user)
-        db.session.commit()  # Essayons de commettre ici sans flush
+        db.session.commit()  # Commit ici pour persister les changements
 
-        new_admin = Admin(
-            utilisateurId=new_user.utilisateurId
-        )
-        db.session.add(new_admin)
-        db.session.commit()  # Commettre après avoir ajouté l'admin
-
-        return jsonify({"message": "Admin créé", "adminId": new_admin.adminId}), 201
+        return jsonify({"message": "Admin créé", "adminId": new_user.adminId}), 201
 
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
 
 
 @admin_bp.route('/admins', methods=['GET'])
