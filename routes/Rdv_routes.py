@@ -8,7 +8,8 @@ rdv_bp = Blueprint('rdv_bp', __name__)
 # routes.py (ajoutez ce code à la suite de celui existant)
 from models.Rdv import Rdv
 
-@rdv_bp.route('/rdvs', methods=['GET', 'POST'])
+
+@rdv_bp.route('/rdvs', methods=['POST'])
 def handle_rdvs():
     if request.method == 'POST':
         data = request.get_json()
@@ -22,9 +23,12 @@ def handle_rdvs():
         db.session.commit()
         return jsonify({"message": "Rdv créé"}), 201
 
-    if request.method == 'GET':
-        rdvs = Rdv.query.all()
-        return jsonify([r.to_dict() for r in rdvs])
+
+@rdv_bp.route('/rdvs', methods=['GET'])
+def get_rdvs():
+    rdvs = Rdv.query.all()
+    return jsonify([r.to_dict() for r in rdvs])
+
 
 @rdv_bp.route('/rdvs/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_rdv(id):

@@ -5,6 +5,7 @@ from app import db
 
 garage_bp = Blueprint('garage_bp', __name__)
 
+
 @garage_bp.route('/garages', methods=['POST'])
 def create_garage():
     data = request.get_json()
@@ -42,10 +43,12 @@ def create_garage():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
+
 @garage_bp.route('/garages', methods=['GET'])
 def get_garages():
     garages = Garage.query.all()
     return jsonify([g.to_dict() for g in garages])
+
 
 @garage_bp.route('/garages/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_garage(id):
