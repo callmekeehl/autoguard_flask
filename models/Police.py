@@ -1,6 +1,7 @@
 from app import db
 from models.Utilisateur import Utilisateur
 
+
 class Police(Utilisateur):
     __tablename__ = 'police'
     __mapper_args__ = {
