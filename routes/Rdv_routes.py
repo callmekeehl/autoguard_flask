@@ -2,11 +2,9 @@ from flask import Blueprint, request, jsonify
 from models import Declaration, Notification, Rdv, Police, Garage
 from models.Utilisateur import Utilisateur
 from app import db
+from models.Rdv import Rdv
 
 rdv_bp = Blueprint('rdv_bp', __name__)
-
-# routes.py (ajoutez ce code à la suite de celui existant)
-from models.Rdv import Rdv
 
 
 @rdv_bp.route('/rdvs', methods=['POST'])

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from models.Admin import Admin
 from models.Utilisateur import Utilisateur
 from app import db
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 admin_bp = Blueprint('admin_bp', __name__)
 
@@ -20,6 +21,18 @@ def create_admin():
 
     if Utilisateur.query.filter_by(email=data['email']).first():
         return jsonify({"error": "Un utilisateur avec cet email existe déjà."}), 400
+
+    data = request.get_json()
+    current_user = get_jwt_identity()
+
+    if current_user['type'] != 'admin':
+        return jsonify({"error": "Accès refusé"}), 403
+
+    data = request.get_json()
+    current_user = get_jwt_identity()
+
+    if current_user['type'] != 'admin':
+        return jsonify({"error": "Accès refusé"}), 403
 
     try:
         # Créez l'utilisateur et assignez directement le type 'admin'
@@ -42,11 +55,11 @@ def create_admin():
         return jsonify({"error": str(e)}), 500
 
 
-
 @admin_bp.route('/admins', methods=['GET'])
 def get_admins():
     admins = Admin.query.all()
     return jsonify([a.to_dict() for a in admins])
+
 
 @admin_bp.route('/admins/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_admin(id):

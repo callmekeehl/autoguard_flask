@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify
 from models.Garage import Garage
 from models.Utilisateur import Utilisateur
 from app import db
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+
 
 garage_bp = Blueprint('garage_bp', __name__)
 

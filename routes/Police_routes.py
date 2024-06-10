@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify
 from models.Police import Police
 from models.Utilisateur import Utilisateur
 from app import db
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+
 
 police_bp = Blueprint('police_bp', __name__)
 
