@@ -6,6 +6,7 @@ from app import db
 
 auth_bp = Blueprint('auth_bp', __name__)
 
+
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
