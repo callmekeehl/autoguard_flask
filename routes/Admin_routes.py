@@ -6,7 +6,6 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 
 admin_bp = Blueprint('admin_bp', __name__)
 
-
 @admin_bp.route('/admins', methods=['POST'])
 def create_admin():
     data = request.get_json()
