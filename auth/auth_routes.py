@@ -9,7 +9,7 @@ from app import db
 
 auth_bp = Blueprint('auth_bp', __name__)
 
-@auth_bp.route('/signup', methods=['POST'])
+
 @auth_bp.route('/signup/<string:role>', methods=['POST'])
 def signup(role='utilisateur'):
     data = request.get_json()

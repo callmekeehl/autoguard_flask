@@ -11,6 +11,10 @@ garage_bp = Blueprint('garage_bp', __name__)
 @garage_bp.route('/garages', methods=['POST'])
 def create_garage():
     data = request.get_json()
+    current_user = get_jwt_identity()
+
+    if current_user['type'] != 'admin':
+        return jsonify({"error": "Accès refusé"}), 403
 
     print("Données JSON reçues:", data)
 

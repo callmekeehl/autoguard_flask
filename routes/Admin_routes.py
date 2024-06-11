@@ -9,6 +9,10 @@ admin_bp = Blueprint('admin_bp', __name__)
 @admin_bp.route('/admins', methods=['POST'])
 def create_admin():
     data = request.get_json()
+    current_user = get_jwt_identity()
+
+    if current_user['type'] != 'admin':
+        return jsonify({"error": "Accès refusé"}), 403
 
     print("Données JSON reçues:", data)
 
